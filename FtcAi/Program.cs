@@ -1,3 +1,4 @@
+using FtcAi.Exceptions;
 using FtcAi.Services.Analysis;
 using FtcAi.Settings;
 
@@ -10,6 +11,9 @@ builder.Services.Configure<GeminiSettings>(builder.Configuration.GetSection("Gem
 
 builder.Services.AddScoped<IAnalysisService, AnalysisService>();
 builder.Services.AddHttpClient();
+
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<AppExceptionHandler>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -24,6 +28,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
 
