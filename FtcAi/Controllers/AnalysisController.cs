@@ -16,8 +16,9 @@ public class AnalysisController : ControllerBase
     }
 
     [HttpPost("v1")]
-    [ProducesResponseType(typeof(AnalysisResponseDto), 200)]
-    [ProducesResponseType(400)]
+    [ProducesResponseType(typeof(AnalysisResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Post([FromBody] AnalysisRequestDto request)
     {
         var result = await _analysisService.Analyze(request);
