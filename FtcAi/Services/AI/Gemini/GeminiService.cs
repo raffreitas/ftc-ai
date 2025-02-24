@@ -1,5 +1,6 @@
 ﻿using FtcAi.DTOs;
 using FtcAi.Settings;
+using Microsoft.Extensions.Options;
 using System.Text.Json;
 
 namespace FtcAi.Services.AI.Gemini;
@@ -8,10 +9,10 @@ public class GeminiService : IAIService
 {
     private readonly HttpClient _httpClient;
     private readonly GeminiSettings _geminiSettings;
-    public GeminiService(IHttpClientFactory httpClient, GeminiSettings geminiSettings)
+    public GeminiService(IHttpClientFactory httpClient, IOptions<GeminiSettings> geminiSettings)
     {
         _httpClient = httpClient.CreateClient();
-        _geminiSettings = geminiSettings;
+        _geminiSettings = geminiSettings.Value;
     }
 
     public async Task<AIMessageResponseDto> SendMessage(AIMessageRequestDto message)

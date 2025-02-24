@@ -1,5 +1,6 @@
 ﻿using FtcAi.DTOs;
 using FtcAi.Settings;
+using Microsoft.Extensions.Options;
 using OpenAI.Chat;
 
 namespace FtcAi.Services.AI.OpenAI;
@@ -7,9 +8,9 @@ namespace FtcAi.Services.AI.OpenAI;
 public class OpenAIService : IAIService
 {
     private readonly ChatClient _chatClient;
-    public OpenAIService(OpenAISettings settings)
+    public OpenAIService(IOptions<OpenAISettings> settings)
     {
-        _chatClient = new ChatClient(model: settings.Model, apiKey: settings.ApiKey);
+        _chatClient = new ChatClient(model: settings.Value.Model, apiKey: settings.Value.ApiKey);
     }
     public async Task<AIMessageResponseDto> SendMessage(AIMessageRequestDto request)
     {

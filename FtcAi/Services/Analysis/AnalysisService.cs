@@ -1,37 +1,21 @@
 ﻿using FtcAi.DTOs;
-using FtcAi.Enums;
 using FtcAi.Services.AI;
-using FtcAi.Services.AI.Gemini;
-using FtcAi.Services.AI.OpenAI;
-using FtcAi.Settings;
-using Microsoft.Extensions.Options;
 using System.Text.Json;
 
 namespace FtcAi.Services.Analysis;
 
 public class AnalysisService : IAnalysisService
 {
-    private readonly IHttpClientFactory _httpContextFactory;
-    private readonly OpenAISettings _openAISettings;
-    private readonly GeminiSettings _geminiSettings;
+    private readonly AIServiceFactory _aiServiceFactory;
 
-    public AnalysisService(IHttpClientFactory httpContextFactory,
-        IOptions<OpenAISettings> openAISettings,
-        IOptions<GeminiSettings> geminiSettings)
+    public AnalysisService(AIServiceFactory aiServiceFactory)
     {
-        _httpContextFactory = httpContextFactory;
-        _openAISettings = openAISettings.Value;
-        _geminiSettings = geminiSettings.Value;
+        _aiServiceFactory = aiServiceFactory;
     }
 
     public async Task<AnalysisResponseDto> Analyze(AnalysisRequestDto request)
     {
-        AIServiceFactory aiServiceFactory = request.Provider switch
-        {
-            AIProvider.OpenAI => new OpenAIServiceFactory(_openAISettings),
-            AIProvider.Gemini => new GeminiServiceFactory(_httpContextFactory, _geminiSettings),
-            _ => throw new Exception(),
-        };
+        IAIService aiService = _aiServiceFactory.CreateService(request.Provider);
 
         var systemMessage = """
                             **Objetivo:** Analisar os dados JSON abaixo para identificar gargalos e oportunidades de melhoria na produtividade dos times de tecnologia.
@@ -54,7 +38,7 @@ public class AnalysisService : IAnalysisService
                             * Gere um resumo conciso com os principais insights da análise, destacando os pontos fortes e fracos de cada time em relação à produtividade
                             """.Trim();
 
-        var result = await aiServiceFactory.SendMessage(new AIMessageRequestDto
+        var result = await aiService.SendMessage(new AIMessageRequestDto
         {
             SystemMessage = systemMessage,
             UserMessage = JsonSerializer.Serialize(request.Data)

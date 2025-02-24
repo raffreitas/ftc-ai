@@ -1,14 +1,27 @@
-﻿using FtcAi.DTOs;
+﻿using FtcAi.Enums;
+using FtcAi.Services.AI.Gemini;
+using FtcAi.Services.AI.OpenAI;
 
 namespace FtcAi.Services.AI;
 
-public abstract class AIServiceFactory
+public class AIServiceFactory
 {
-    public abstract IAIService CreateService();
+    private readonly OpenAIService _openAiService;
+    private readonly GeminiService _geminiService;
 
-    public Task<AIMessageResponseDto> SendMessage(AIMessageRequestDto message)
+    public AIServiceFactory(OpenAIService openAiService, GeminiService geminiService)
     {
-        var service = CreateService();
-        return service.SendMessage(message);
+        _openAiService = openAiService;
+        _geminiService = geminiService;
+    }
+
+    public IAIService CreateService(AIProvider provider)
+    {
+        return provider switch
+        {
+            AIProvider.OpenAI => _openAiService,
+            AIProvider.Gemini => _geminiService,
+            _ => throw new ArgumentOutOfRangeException(nameof(provider), provider, null),
+        };
     }
 }
