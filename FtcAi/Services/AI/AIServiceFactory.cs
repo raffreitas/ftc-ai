@@ -6,21 +6,19 @@ namespace FtcAi.Services.AI;
 
 public class AIServiceFactory
 {
-    private readonly OpenAIService _openAiService;
-    private readonly GeminiService _geminiService;
+    private readonly IServiceProvider _serviceProvider;
 
-    public AIServiceFactory(OpenAIService openAiService, GeminiService geminiService)
+    public AIServiceFactory(IServiceProvider serviceProvider)
     {
-        _openAiService = openAiService;
-        _geminiService = geminiService;
+        _serviceProvider = serviceProvider;
     }
 
     public IAIService CreateService(AIProvider provider)
     {
         return provider switch
         {
-            AIProvider.OpenAI => _openAiService,
-            AIProvider.Gemini => _geminiService,
+            AIProvider.OpenAI => _serviceProvider.GetRequiredService<OpenAIService>(),
+            AIProvider.Gemini => _serviceProvider.GetRequiredService<GeminiService>(),
             _ => throw new ArgumentOutOfRangeException(nameof(provider), provider, null),
         };
     }
